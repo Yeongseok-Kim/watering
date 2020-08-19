@@ -8,21 +8,34 @@ int moisture;
 
 void setup() {
   pinMode(pump, OUTPUT);
+  
   u8g.setFont(u8g_font_unifont);
   u8g.setColorIndex(1);
+  
 }
 
 void loop() {
-  u8g.firstPage();
   moisture = analogRead(A0);
+  
+  u8g.firstPage();
   do {
-    u8g.setPrintPos(0, 20);
-    u8g.print(moisture);
-    if (moisture > 500){
-      digitalWrite(pump, HIGH);
-    } else {
-      digitalWrite(pump, LOW);      
-    }
+    draw_oled();
   } while(u8g.nextPage());
+  
+  water();
+  
   delay(50);
+}
+
+void draw_oled(){
+  u8g.setPrintPos(2, 20);
+  u8g.print(moisture);
+}
+
+void water(){
+  if (moisture > 500){
+    digitalWrite(pump, HIGH);
+  } else {
+    digitalWrite(pump, LOW);      
+  }
 }
