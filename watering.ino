@@ -1,5 +1,7 @@
 #include <U8glib.h>
 #define DRY 500
+#define SECOND 1000
+#define MINUTE 60000
 
 U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_NONE);
 
@@ -17,13 +19,13 @@ void setup() {
 }
 
 void loop() {
-  Check();
+  Update();
   Draw();
   Water();
-  delay(50);
+  delay(30 * SECOND);
 }
 
-void Draw(){
+void Draw() {
   u8g.firstPage();
   do {
     u8g.setPrintPos(0, 20);
@@ -32,7 +34,7 @@ void Draw(){
   } while(u8g.nextPage());
 }
 
-void Check(){
+void Update() {
   moisture[0] = analogRead(A0);
   moisture[1] = analogRead(A1);
   moisture[2] = analogRead(A2);
@@ -49,16 +51,37 @@ void Valve(){
   }
 }
 
-void Pump(){
-  if (moisture[0] > DRY || moisture[1] > DRY ||
-      moisture[2] > DRY || moisture[3] > DRY){
-    digitalWrite(pump, HIGH);
-  } else {
-    digitalWrite(pump, LOW);      
+void ValveOff(){
+  for (int i = 0; i < 4; i++) {
+    digitalWrite(relay[i], LOW);
   }
 }
 
-void Water(){
-  Pump();
-  Valve();
+boolean Check() {
+  if (moisture[0] > DRY || moisture[1] > DRY ||
+      moisture[2] > DRY || moisture[3] > DRY){
+    return true;
+  } else {
+    return false;      
+  }
+}
+
+//void Pump() {
+//  if (Check()){
+//    digitalWrite(pump, HIGH);
+//  } else {
+//    digitalWrite(pump, LOW);      
+//  }
+//}
+
+void Water() {
+  while (Check()) {
+    Update();
+    Draw();
+    digitalWrite(pump, HIGH);
+    Valve();
+    delay(500);
+  }
+  digitalWrite(pump, LOW);
+  ValveOff();
 }
