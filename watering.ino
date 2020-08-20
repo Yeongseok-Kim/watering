@@ -1,3 +1,5 @@
+#define __SINGLE__
+#ifdef __MULTI__
 #include <U8glib.h>
 #define DRY 500
 #define SECOND 1000
@@ -85,3 +87,5 @@ void Water() {
   digitalWrite(pump, LOW);
   ValveOff();
 }
+
+#endif
